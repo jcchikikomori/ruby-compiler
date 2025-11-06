@@ -1,7 +1,7 @@
 name: Build Ruby Versions
 on:
   push:
-    branches: [ main ]
+    branches: [ main, feature/*, bugfix/*, hotfix/* ]
   workflow_dispatch:
 
 jobs:
