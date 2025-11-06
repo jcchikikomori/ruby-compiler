@@ -1,8 +1,17 @@
 #!/bin/bash
+
 BUILDS_DIR="builds"
 mkdir -p $BUILDS_DIR
 
-read -p "Enter the Ruby version you want to build (e.g., 2.5.8): " VERSION
+# If first argument is given, use it as VERSION, else prompt
+if [ -n "$1" ]; then
+    VERSION="$1"
+    NONINTERACTIVE=1
+else
+    read -p "Enter the Ruby version you want to build (e.g., 2.5.8): " VERSION
+    NONINTERACTIVE=0
+fi
+
 MAJOR_MINOR=$(echo $VERSION | awk -F. '{print $1 "." $2}')
 DOCKER_DIR="$MAJOR_MINOR"
 DOCKERFILE="$DOCKER_DIR/Dockerfile"
@@ -28,13 +37,24 @@ rm -f $BUILDS_DIR/ruby-$VERSION.tar.gz
 $COMMAND run --rm ruby-builder cat /ruby-$VERSION.tar.gz > $BUILDS_DIR/ruby-$VERSION.tar.gz
 
 # Installing
-echo "Do you want to install ruby $VERSION to your rbenv? (y/n)"
-read INSTALL_RUBY
-if [ "$INSTALL_RUBY" == "y" ]; then
-    echo "Installing ruby $VERSION..."
-    mkdir -p ~/.rbenv/versions/$VERSION
-    tar -xzf $BUILDS_DIR/ruby-$VERSION.tar.gz -C ~/.rbenv/versions
+if [ "$NONINTERACTIVE" -eq 1 ]; then
+    # If second argument is 'install', auto-install
+    if [ "$2" == "install" ]; then
+        echo "Installing ruby $VERSION..."
+        mkdir -p ~/.rbenv/versions/$VERSION
+        tar -xzf $BUILDS_DIR/ruby-$VERSION.tar.gz -C ~/.rbenv/versions
+    else
+        echo "Skipping ruby $VERSION installation (non-interactive mode)."
+    fi
 else
-    echo "Skipping ruby $VERSION installation."
+    echo "Do you want to install ruby $VERSION to your rbenv? (y/n)"
+    read INSTALL_RUBY
+    if [ "$INSTALL_RUBY" == "y" ]; then
+        echo "Installing ruby $VERSION..."
+        mkdir -p ~/.rbenv/versions/$VERSION
+        tar -xzf $BUILDS_DIR/ruby-$VERSION.tar.gz -C ~/.rbenv/versions
+    else
+        echo "Skipping ruby $VERSION installation."
+    fi
 fi
 echo "Build process completed. The tarball is located at $BUILDS_DIR/ruby-$VERSION.tar.gz"
