@@ -10,10 +10,10 @@ jobs:
     env:
       VERSION: 2.7.8
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Ruby 2.7.8
         run: |
@@ -30,7 +30,7 @@ jobs:
           docker run --rm ruby-builder-2.7 cat /ruby-${{ env.VERSION }}.tar.gz > builds/ruby-${{ env.VERSION }}.tar.gz
 
       - name: Upload Ruby 2.7.8 Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: ruby-${{ env.VERSION }}
           path: builds/ruby-${{ env.VERSION }}.tar.gz
@@ -41,10 +41,10 @@ jobs:
     env:
       VERSION: 3.4.7
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Ruby 3.4.7
         run: |
@@ -61,7 +61,7 @@ jobs:
           docker run --rm ruby-builder-3.4 cat /ruby-${{ env.VERSION }}.tar.gz > builds/ruby-${{ env.VERSION }}.tar.gz
 
       - name: Upload Ruby 3.4.7 Artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v5
         with:
           name: ruby-${{ env.VERSION }}
           path: builds/ruby-${{ env.VERSION }}.tar.gz
