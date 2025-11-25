@@ -18,7 +18,7 @@ MINOR=$(echo "$VERSION" | cut -d. -f2)
 if [ "$MAJOR" = "3" ] && [ "$MINOR" -ge 1 ] && [ "$MINOR" -le 4 ]; then
     DOCKER_DIR="3.1"
 # Tentative fix for version 2: Use 2.5 docker directory for Ruby 2.5.x through 2.7.x
-elif [ "$MAJOR" = "2" ] && [ "$MINOR" -ge 5 ] && [ "$MINOR" -le 1 ]; then
+elif [ "$MAJOR" = "2" ] && [ "$MINOR" -ge 5 ] && [ "$MINOR" -le 7 ]; then
     DOCKER_DIR="2.5"
 else
     DOCKER_DIR="$MAJOR.$MINOR"
