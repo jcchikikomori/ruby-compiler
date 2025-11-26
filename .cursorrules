@@ -1,0 +1,183 @@
+# Ruby Builder for rbenv - AI Assistant Instructions
+
+You are an AI assistant helping with the Ruby Builder for rbenv project. This project provides hassle-free Ruby compilation using Docker/Podman virtualization, specifically designed to help users install legacy Ruby versions on modern systems (Apple Silicon, Arch Linux, newer Ubuntu releases).
+
+## Project Overview
+
+- **Purpose**: Compile Ruby versions in Docker containers and install them into rbenv
+- **Target Users**: Developers working with legacy Ruby on Rails projects on incompatible systems
+- **Key Technology**: Docker/Podman containerization with Ubuntu base images
+- **License**: MIT License (Copyright 2025 John Cyrill Corsanes)
+
+## Core Components
+
+### 1. Build Script (`build.sh`)
+- Main entry point for building Ruby versions
+- Accepts version as first argument or prompts interactively
+- Automatically selects appropriate Dockerfile based on version:
+  - Ruby 2.5.x - 2.7.x → Uses `2.5/Dockerfile` (Ubuntu 20.04)
+  - Ruby 3.1.x - 3.4.x → Uses `3.1/Dockerfile` (Ubuntu 22.04)
+- Supports both Docker and Podman (auto-detects)
+- Outputs tarballs to `builds/` directory
+- Optionally installs to `~/.rbenv/versions/`
+
+### 2. Dockerfiles
+- **2.5/Dockerfile**: Ubuntu 20.04 base for Ruby 2.5-2.7
+- **3.1/Dockerfile**: Ubuntu 22.04 base for Ruby 3.1-3.4
+- Both include necessary build dependencies (gcc, libssl-dev, etc.)
+- Creates tarball at `/ruby-$SPECIFIC_VERSION.tar.gz`
+
+### 3. CI/CD Pipeline (`.github/workflows/ci-build.yml`)
+- Builds Ruby 2.5.0, 2.7.8, and 3.4.7 on push to main/feature/bugfix/hotfix branches
+- Uploads artifacts with 90-day retention
+- Uses Docker Buildx for builds
+
+### 4. Pre-commit Hooks (`.pre-commit-config.yaml`)
+- Commitizen for commit message validation
+- YAML/JSON validation
+- Trailing whitespace/EOF fixes
+- Black formatter for Python files
+
+## Coding Guidelines
+
+### Shell Scripting (bash)
+1. **Always use POSIX-compliant syntax** where possible
+2. **Quote variables**: Use `"$VARIABLE"` to prevent word splitting
+3. **Check command availability**: Use `command -v` to verify tools exist
+4. **Error handling**: Check exit codes and provide clear error messages
+5. **Use `set -e`** for critical scripts to exit on errors
+6. **Follow shellcheck recommendations** (project uses pre-commit linting)
+
+### Docker Best Practices
+1. **Multi-stage builds**: Not currently used but consider for optimization
+2. **Layer caching**: Order commands from least to most frequently changed
+3. **Use specific tags**: Avoid `latest` in production (currently using ubuntu:20.04, ubuntu:22.04)
+4. **ARG vs ENV**: Use ARG for build-time variables (as currently done)
+5. **Clean up in same layer**: Run `apt-get clean` in same RUN command as install
+
+### Version Management
+- **Format**: MAJOR.MINOR.PATCH (e.g., 2.5.8, 3.1.4)
+- **Extraction**: Use `cut -d. -f1` for major, `-f2` for minor
+- **Routing logic**: Check major/minor to select correct Dockerfile directory
+
+## Common Tasks
+
+### Adding Support for New Ruby Version Range
+
+When adding support for a new major/minor version (e.g., Ruby 3.5.x):
+
+1. **Create new Dockerfile directory**:
+   ```bash
+   mkdir -p 3.5
+   ```
+
+2. **Copy and modify Dockerfile**:
+   - Choose appropriate Ubuntu base image
+   - Update default SPECIFIC_VERSION and MAJOR_MINOR ARGs
+   - Ensure all build dependencies are included
+
+3. **Update `build.sh` routing logic**:
+   - Add conditional in the version routing section
+   - Example:
+     ```bash
+     elif [ "$MAJOR" = "3" ] && [ "$MINOR" -ge 5 ] && [ "$MINOR" -le 9 ]; then
+         DOCKER_DIR="3.5"
+     ```
+
+4. **Test the build**:
+   ```bash
+   ./build.sh 3.5.0
+   ```
+
+5. **Update documentation** (README.md):
+   - Add version to "Currently supported versions" section
+   - Update any relevant compatibility notes
+
+### Debugging Build Issues
+
+1. **Check Docker/Podman availability**: Script auto-detects, verify with `docker --version` or `podman --version`
+2. **Verify Dockerfile exists**: Check `$DOCKER_DIR` and `$DOCKERFILE` paths
+3. **Manual build test**:
+   ```bash
+   docker build -t ruby-builder \
+     --build-arg USERNAME=$(whoami) \
+     --build-arg USER_UID=1001 \
+     --build-arg USER_GID=1001 \
+     --build-arg SPECIFIC_VERSION=2.7.8 \
+     --build-arg MAJOR_MINOR=2.7 \
+     2.5/.
+   ```
+4. **Check Ruby source availability**: Verify URL `https://cache.ruby-lang.org/pub/ruby/$MAJOR_MINOR/ruby-$VERSION.tar.gz`
+
+### Modifying CI/CD
+
+- **Add new version job**: Copy existing job template and change VERSION env var
+- **Artifact retention**: Currently 90 days, adjust `retention-days` if needed
+- **Trigger conditions**: Runs on main, feature/*, bugfix/*, hotfix/* branches
+
+## TODOs and Roadmap
+
+Current open items from README.md:
+- [ ] ARM support (Apple Silicon/Raspberry Pi)
+- [ ] Support older Ruby versions (< 2.5)
+- [ ] Support modern Ruby versions (> 3.4)
+
+Completed items:
+- [x] Dynamic script for any Ruby release
+- [x] Linter for shell scripts
+- [x] Pre-commit config for shell scripting
+
+## Response Style
+
+When assisting users:
+1. **Be direct**: Provide clear, actionable answers
+2. **Show examples**: Include shell commands and code snippets
+3. **Explain trade-offs**: Discuss why certain approaches are used
+4. **Reference documentation**: Point to relevant sections in README.md or Dockerfiles
+5. **Verify assumptions**: Confirm Ruby version compatibility before suggesting changes
+
+## File Naming Conventions
+
+- Shell scripts: `.sh` extension, executable permissions
+- Dockerfiles: Uppercase `Dockerfile` (no extension)
+- Config files: Lowercase with hyphens (e.g., `.pre-commit-config.yaml`)
+- Build artifacts: `ruby-$VERSION.tar.gz` in `builds/` directory
+
+## Dependencies and Requirements
+
+**User Requirements**:
+- Docker or Podman
+- rbenv installed
+- bash shell
+- Standard Unix tools (tar, mkdir, etc.)
+
+**Build Dependencies** (in containers):
+- build-essential
+- curl, git
+- autoconf, bison
+- libssl-dev, libyaml-dev, libreadline-dev, zlib1g-dev, libncurses5-dev, libffi-dev, libgdbm-dev
+
+## Testing Approach
+
+1. **Manual testing**: Run `./build.sh` with various versions
+2. **CI testing**: Pushes to main/feature branches trigger builds
+3. **Verification**: Check that:
+   - Tarball is created in `builds/`
+   - Ruby binary works: `~/.rbenv/versions/$VERSION/bin/ruby --version`
+   - Gems can be installed
+
+## Contributing Guidelines
+
+From CONTRIBUTING.md:
+- Fork the project for custom Ruby versions
+- PRs accepted for supporting more legacy Ruby versions
+- Focus on preventing headaches in maintaining old/ongoing Ruby projects
+- Follow pre-commit hook requirements (commit message format, linting, etc.)
+
+## Key Design Principles
+
+1. **User-friendly**: Minimal configuration, intelligent defaults
+2. **Portable**: Works with Docker or Podman
+3. **Flexible**: Interactive or non-interactive modes
+4. **Reliable**: Uses containerization to avoid host system conflicts
+5. **Maintainable**: Clear separation of concerns (Dockerfiles per version range)

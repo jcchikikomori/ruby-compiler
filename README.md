@@ -4,7 +4,7 @@ Hassle-free Ruby builder using Virtualization for rbenv.
 
 ## Motive
 
-My main objective is to prevent other users to have headaches on just setting up the legacy projects on Ruby on Rails, just like my past experiences, particularly on Silicon Macintosh machines (Apple M1 and higher), Arch Linux, and newer versions of Ubuntu.
+My goal is to spare users the pain of setting up legacy Ruby on Rails projects, especially on Apple Silicon (M1 and later), Arch Linux, and newer Ubuntu releases.
 
 The best thing on this one is, it can install onto your `rbenv`!
 
@@ -19,7 +19,7 @@ Suck on that, GCC 14!
 
 ### Build & install Ruby
 
-Execute `./build.sh`.
+Just execute `./build.sh`.
 
 #### Currently supported versions
 
@@ -30,7 +30,9 @@ Execute `./build.sh`.
 
 ### TODOs
 
-- [ ] Dynamic script to install any releases of Ruby.
-- [ ] Linter for shell scripts.
-- [ ] Own pre-commit config for shell scripting.
+- [x] Dynamic script to install any releases of Ruby.
+- [x] Linter for shell scripts.
+- [x] Own pre-commit config for shell scripting.
 - [ ] ARM support (for Apple Silicon or RPi).
+- [ ] Support older versions of ruby.
+- [ ] Support modern versions of ruby.
