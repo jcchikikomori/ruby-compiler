@@ -1,6 +1,9 @@
-# Ruby Builder
+# Ruby Builder for rbenv
 
-Hassle-free Ruby version builder using Virtualization.
+Hassle-free Ruby builder using Virtualization for rbenv.
+
+## Motive
+
 My main objective is to prevent other users to have headaches on just setting up the legacy projects on Ruby on Rails, just like my past experiences, particularly on Silicon Macintosh machines (Apple M1 and higher), Arch Linux, and newer versions of Ubuntu.
 
 The best thing on this one is, it can install onto your `rbenv`!
