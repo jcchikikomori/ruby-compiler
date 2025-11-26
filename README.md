@@ -12,7 +12,8 @@ Suck on that, GCC 14!
 
 ## Requirements
 
-- Docker or Podman (OSS)
+- [Homebrew](https://brew.sh) - Custom installation is not supported!
+- Docker or Podman (OSS) running on Ubuntu
 - [rbenv](https://github.com/rbenv/rbenv) - Ruby Version Manager
 
 ## How to use
@@ -33,6 +34,7 @@ Just execute `./build.sh`.
 - [x] Dynamic script to install any releases of Ruby.
 - [x] Linter for shell scripts.
 - [x] Own pre-commit config for shell scripting.
+- [ ] Arch Linux support or any Linux distro that uses rolling release.
 - [ ] ARM support (for Apple Silicon or RPi).
 - [ ] Support older versions of ruby.
 - [ ] Support modern versions of ruby.
