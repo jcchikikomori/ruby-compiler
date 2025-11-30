@@ -12,8 +12,17 @@ else
     NONINTERACTIVE=0
 fi
 
-MAJOR_MINOR=$(echo $VERSION | awk -F. '{print $1 "." $2}')
-DOCKER_DIR="$MAJOR_MINOR"
+MAJOR=$(echo "$VERSION" | cut -d. -f1)
+MINOR=$(echo "$VERSION" | cut -d. -f2)
+# Tentative fix for version 3: Use 3.1 docker directory for Ruby 3.1.x through 3.4.x
+if [ "$MAJOR" = "3" ] && [ "$MINOR" -ge 1 ] && [ "$MINOR" -le 4 ]; then
+    DOCKER_DIR="3.1"
+# Tentative fix for version 2: Use 2.5 docker directory for Ruby 2.5.x through 2.7.x
+elif [ "$MAJOR" = "2" ] && [ "$MINOR" -ge 5 ] && [ "$MINOR" -le 7 ]; then
+    DOCKER_DIR="2.5"
+else
+    DOCKER_DIR="$MAJOR.$MINOR"
+fi
 DOCKERFILE="$DOCKER_DIR/Dockerfile"
 
 if [ ! -d "$DOCKER_DIR" ] || [ ! -f "$DOCKERFILE" ]; then
@@ -32,7 +41,9 @@ $COMMAND build -t ruby-builder \
     --build-arg USERNAME=$(whoami) \
     --build-arg USER_UID=1001 \
     --build-arg USER_GID=1001 \
-    --build-arg VERSION=$VERSION $DOCKER_DIR/.
+    --build-arg VERSION=$VERSION $DOCKER_DIR/. \
+    --build-arg SPECIFIC_VERSION=$VERSION \
+    --build-arg MAJOR_MINOR=$MAJOR.$MINOR
 rm -f $BUILDS_DIR/ruby-$VERSION.tar.gz
 $COMMAND run --rm ruby-builder cat /ruby-$VERSION.tar.gz > $BUILDS_DIR/ruby-$VERSION.tar.gz
 

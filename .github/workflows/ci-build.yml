@@ -5,45 +5,54 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-ruby-2-5:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: 2.5.0
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Ruby 2.5.0 (using build.sh)
+        run: |
+          chmod +x build.sh
+          ./build.sh ${{ env.VERSION }}
+      - name: Upload Ruby 2.5.0 Artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: ruby-${{ env.VERSION }}
+          path: builds/ruby-${{ env.VERSION }}.tar.gz
+          retention-days: 90
   build-ruby-2-7:
     runs-on: ubuntu-latest
     env:
       VERSION: 2.7.8
     steps:
       - uses: actions/checkout@v5
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-
       - name: Build Ruby 2.7.8 (using build.sh)
         run: |
           chmod +x build.sh
           ./build.sh ${{ env.VERSION }}
-
       - name: Upload Ruby 2.7.8 Artifact
         uses: actions/upload-artifact@v5
         with:
           name: ruby-${{ env.VERSION }}
           path: builds/ruby-${{ env.VERSION }}.tar.gz
           retention-days: 90
-
   build-ruby-3-4:
     runs-on: ubuntu-latest
     env:
       VERSION: 3.4.7
     steps:
       - uses: actions/checkout@v5
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-
       - name: Build Ruby 3.4.7 (using build.sh)
         run: |
           chmod +x build.sh
           ./build.sh ${{ env.VERSION }}
-
       - name: Upload Ruby 3.4.7 Artifact
         uses: actions/upload-artifact@v5
         with:
